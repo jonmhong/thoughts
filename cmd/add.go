@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const binary_name = "todos"
+
 // by default, no flag is needed when writing out thoughts
 // a subcommand is run when passing the -l flag
 var rootCmd = &cobra.Command{
@@ -30,14 +32,8 @@ $ thoughts l all # this lists all thoughts of all dates
 	Run: RunThoughtCommand,
 }
 
-// can choose a binary file
-const (
-	binary_name = "todos"
-)
-
-// var binary_name string
-
 func RunThoughtCommand(cmd *cobra.Command, args []string) {
+
 	if len(args) == 0 {
 		return
 	}
