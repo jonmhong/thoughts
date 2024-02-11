@@ -1,8 +1,6 @@
 package main
 
-import (
-	"thoughts/cmd"
-)
+import "thoughts/cmd"
 
 func main() {
 	cmd.Execute()

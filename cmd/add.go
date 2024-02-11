@@ -30,26 +30,32 @@ $ thoughts l all # this lists all thoughts of all dates
 	Run: RunThoughtCommand,
 }
 
+// can choose a binary file
+const (
+	binary_name = "todos"
+)
+
+// var binary_name string
+
 func RunThoughtCommand(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
 		return
 	}
 
 	homeDir := os.Getenv("HOME")
-	thoughtsDir := path.Join(homeDir, ".thoughts_storage")
+	storageDir := path.Join(homeDir, fmt.Sprintf(".%s_storage", binary_name))
 	todaysDate := time.Now().Format("2006-01-02")
-	todayFile := path.Join(thoughtsDir, todaysDate+".txt")
+	todayFile := path.Join(storageDir, todaysDate+".txt")
 
-	// create .thoughts_storage directory
-	if _, err := os.Stat(thoughtsDir); os.IsNotExist(err) {
-		os.Mkdir(path.Join(homeDir, thoughtsDir), 0755)
+	// create .*_storage directory
+	if _, err := os.Stat(storageDir); os.IsNotExist(err) {
+		os.Mkdir(path.Join(homeDir, storageDir), 0755)
 		return
 	}
 
 	if args[0] == "l" {
-		err := ListThoughts(thoughtsDir, todaysDate, args)
+		err := ListThoughts(storageDir, todaysDate, args)
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 		return
@@ -63,10 +69,10 @@ func RunThoughtCommand(cmd *cobra.Command, args []string) {
 
 }
 
-func ListThoughts(thoughtsDir, todaysDate string, args []string) error {
+func ListThoughts(storageDir, todaysDate string, args []string) error {
 	// if the command is `thoughts l all` then read all files
 	if len(args) > 1 && args[1] == "all" {
-		err := ReadAllFiles(thoughtsDir)
+		err := ReadAllFiles(storageDir)
 		if err != nil {
 			return err
 		}
@@ -84,9 +90,9 @@ func ListThoughts(thoughtsDir, todaysDate string, args []string) error {
 		return errors.New(errString)
 	}
 
-	datePath := path.Join(thoughtsDir, dateFile+".txt")
+	datePath := path.Join(storageDir, dateFile+".txt")
 	if _, err := os.Stat(datePath); os.IsNotExist(err) {
-		fmt.Println("no thoughts for that day")
+		fmt.Printf("no %s for that day", binary_name)
 		return err
 	}
 	byteContents, err := os.ReadFile(datePath)
@@ -100,8 +106,8 @@ func ListThoughts(thoughtsDir, todaysDate string, args []string) error {
 	return nil
 }
 
-func ReadAllFiles(thoughtsDir string) error {
-	files, err := os.ReadDir(thoughtsDir)
+func ReadAllFiles(storageDir string) error {
+	files, err := os.ReadDir(storageDir)
 	if err != nil {
 		return err
 	}
@@ -111,7 +117,7 @@ func ReadAllFiles(thoughtsDir string) error {
 			continue
 		}
 		fileDate := strings.Split(filePath.Name(), ".")[0]
-		fullPath := path.Join(thoughtsDir, filePath.Name())
+		fullPath := path.Join(storageDir, filePath.Name())
 		byteContents, err := os.ReadFile(fullPath)
 		if err != nil {
 			fmt.Println("unable to open file: ", fullPath)
