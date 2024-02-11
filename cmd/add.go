@@ -49,8 +49,11 @@ func RunThoughtCommand(cmd *cobra.Command, args []string) {
 
 	// create .*_storage directory
 	if _, err := os.Stat(storageDir); os.IsNotExist(err) {
-		os.Mkdir(path.Join(homeDir, storageDir), 0755)
-		return
+		err = os.Mkdir(storageDir, 0755)
+		if err != nil {
+			fmt.Println("err making directory: ", storageDir)
+			return
+		}
 	}
 
 	if args[0] == "l" {
